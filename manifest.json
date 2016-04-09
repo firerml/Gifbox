@@ -1,0 +1,14 @@
+{
+	"manifest_version": 2,
+	"name": "GifBox",
+	"description": "Save cool pics you find and bring up whenever you type.",
+	"version": "1.0",
+
+	"author": "Mike Firer (firerml@gmail.com) and Jamie Shen (jmeshen@gmail.com)",
+
+	"permissions": ["contextMenus", "storage"],
+
+	"background": {
+		"scripts": ["picfinder.js"]
+  }
+}
