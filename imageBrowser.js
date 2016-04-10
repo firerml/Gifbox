@@ -1,9 +1,8 @@
 var syncStorage = chrome.storage.sync;
 
 $(document).ready(function() {
-	$('#image-container').on('click', '.img-box__image', function(event) {
-		// imageUrl = e.src;
-		hiddenImageUrl = $('<p>' + event.target.src + '</p>').css({'position': 'absolute', 'left': '-2000px'});
+	$('#image-container').on('click', '.img-box', function(event) {
+		hiddenImageUrl = $('<p>' + event.currentTarget.children[1].src + '</p>').css({'position': 'absolute', 'left': '-2000px'});
 		$('body').append(hiddenImageUrl);
 		var selection = window.getSelection();
 		var range = document.createRange();
@@ -21,9 +20,8 @@ syncStorage.get(null, function(results) {
 
 		$('#image-container')
 		.append($('<div>', {'class': 'img-box'})
-			.append($('<div>', {'class': 'img-box__overlay'}).append(
-				$('<h3>', {text: 'Copy Link'}))
-			)
+			.append($('<div>', {'class': 'img-box__overlay'})
+				.append($('<h3>', {text: 'Copy Link'})))
 			.append($('<img>', {'class': 'img-box__image', 'src': data.imageUrl}))
 		);
 	}
