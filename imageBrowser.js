@@ -21,7 +21,9 @@ syncStorage.get(null, function(results) {
 
 		$('#image-container')
 		.append($('<div>', {'class': 'img-box'})
-			.append($('<div>', {'class': 'img-box__overlay', text: 'Copy Link'}))
+			.append($('<div>', {'class': 'img-box__overlay'}).append(
+				$('<h3>', {text: 'Copy Link'}))
+			)
 			.append($('<img>', {'class': 'img-box__image', 'src': data.imageUrl}))
 		);
 	}
