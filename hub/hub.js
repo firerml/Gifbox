@@ -17,8 +17,8 @@ function copyText(text) {
 
 $(document).ready(function() {
 	// Copy images when they're clicked on.
-	$('#image-container').on('click', '.single-image', function(event) {
-		copyText(event.target.src)
+	$('#image-container').on('click', '.img-box', function(event) {
+		copyText(event.currentTarget.children[1].src)
 	});
 })
 
@@ -26,6 +26,11 @@ $(document).ready(function() {
 syncStorage.get(null, function(results) {
 	for (var itemId in results) {
 		var data = results[itemId];
-		$('#image-container').append($('<img>', {'class': 'single-image', 'src': data.imageUrl}));
+		$('#image-container')
+		.append($('<div>', {'class': 'img-box'})
+			.append($('<div>', {'class': 'img-box__overlay'})
+				.append($('<h3>', {text: 'Copy Link'})))
+			.append($('<img>', {'class': 'img-box__image', 'src': data.imageUrl}))
+		);
 	}
 });
