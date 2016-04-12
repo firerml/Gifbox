@@ -20,8 +20,7 @@ function savePic(imageInfo, tab) {
 		var newImageData = {};
 		newImageData[newItemId] = {
 			'imageName': promptedName,
-			'imageUrl': imageInfo.srcUrl,
-			'tags': []
+			'imageUrl': imageInfo.srcUrl
 		};
 
 		// Update name index with words in name.
@@ -30,7 +29,7 @@ function savePic(imageInfo, tab) {
 		}
 		var nameWords = promptedName.toLowerCase().split(' ');
 		for (var i in nameWords) {
-			var nameWord = nameWords[i];
+			var nameWord = nameWords[i].toLowerCase().trim();
 			if (nameIndex[nameWord] === undefined) {
 				nameIndex[nameWord] = [newItemId];
 			} else {
