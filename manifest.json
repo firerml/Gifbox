@@ -15,8 +15,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      // "css": ["mystyles.css"],
-      "js": ["third_party/jquery.min.js", "imageSearch.js"],
+      "css": ["style.css"],
+      "js": ["third_party/jquery.min.js", "image_search/imageSearch.js"],
       "run_at": "document_end"
     }
   ],
@@ -24,5 +24,7 @@
 	"browser_action": {
 		// "default_icon": "beauty.jpg",
 		"default_popup": "hub/hub.html"
-	}
+	},
+
+	"web_accessible_resources": ["images/*"]
 }

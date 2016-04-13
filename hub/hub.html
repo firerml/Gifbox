@@ -4,63 +4,18 @@
     <title>Gifbox</title>
     <script src="../third_party/jquery.min.js"></script>
     <script src="hub.js"></script>
-    <style>
-      body {
-        width: 500px;
-        height: 500px;
-        background-color: black;
-        color: white;
-        font-size: 14px;
-        text-align: center;
-      }
-      #image-container {
-        -webkit-column-count: 3;
-        -webkit-column-gap: 5px;
-      }
-      .img-box {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 3px;
-        opacity: 1;
-      }
-      .img-box:hover {
-        cursor: pointer;
-      }
-      .img-box:hover .img-box__overlay {
-        opacity: 1;
-      }
-      .img-box__overlay {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        color: white;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        font-size: 1.5em;
-        background: rgba(0, 0, 0, 0.5);
-      }
-      .img-box__overlay h3 {
-        position: relative;
-        bottom: -25%;
-      }
-      .img-box__image {
-        cursor: pointer;
-        width: 100%
-      }
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="../style.css">
   </head>
   <body>
-      <h1>
-        So Gif. Much Box.
-      </h1>
-      <div id="image-container">
-      </div>
-      <div id="search-bar">
-        SEARCH BAR DOWN HERE?
+      <div id="gifbox-container">
+        <h1>
+          So Gif. Much Box.
+        </h1>
+        <div id="image-container">
+        </div>
+        <div id="search-bar">
+          SEARCH BAR DOWN HERE?
+        </div>
       </div>
   </body>
 </html>
-

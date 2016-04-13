@@ -8,8 +8,8 @@ function savePic(imageInfo, tab) {
 		// Get the new image's ID.
 		var highestId = 0;
 		for (var itemId in results) {
-			if (itemId > highestId) {
-				highestId = itemId;
+			if (+itemId > +highestId) {
+				highestId = +itemId;
 			};
 			if (itemId === '-1') {
 				var nameIndex = results['-1'];
