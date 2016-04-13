@@ -18,7 +18,7 @@ function copyText(text) {
 $(document).ready(function() {
 	// Copy images when they're clicked on.
 	$('#image-container').on('click', '.img-box', function(event) {
-		copyText(event.currentTarget.find('.img-box__image').attr('src'))
+		copyText($(event.currentTarget).find('.img-box__image').attr('src'))
 	});
 })
 
