@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 
 // New Code
 var mongo = require('mongodb');
-var db = monk('localhost:27017/server');
 
 var routes = require('./routes/index');
 
@@ -25,11 +24,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function(req,res,next){
-  req.db = db;
-  next();
-});
 app.use('/', routes);
+app.use('/pics/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
