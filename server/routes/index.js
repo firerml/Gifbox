@@ -16,10 +16,7 @@ Our DB looks like:
 */
 
 router.post('/images/', function(req, res, next) {
-    console.log(req.body)
-    var image = new Image();
-    image.name = req.body.name;
-    image.url = req.body.url;
+    var image = new Image(req.body);
     image.save(function(err, image) {
         if (err) { return next(new Error('Failed to save image.'))}
         res.status(201).json(image);
