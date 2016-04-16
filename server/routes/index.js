@@ -21,7 +21,8 @@ router.post('/images/', function(req, res, next) {
     image.name = req.body.name;
     image.url = req.body.url;
     image.save(function(err, image) {
-        res.status(201).send(image);
+        if (err) { return next(new Error('Failed to save image.'))}
+        res.status(201).json(image);
     })
         
 });
@@ -29,7 +30,8 @@ router.post('/images/', function(req, res, next) {
 router.get('/images/', function(req, res, next) {
 
     Image.find({}, function(err, images) {
-        res.status(200).send(images);
+        if (err) { return next(new Error('Failed to get images.'))}
+        res.status(200).json(images);
     })
 
 });
