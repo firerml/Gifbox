@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var mongoose = require('mongoose')
+mongoose.connect('mongodb://localhost:27017/gifbook');
 
+var User = require('../models/userModel');
+var Image = require('../models/imageModel');
 /*
 Our DB looks like:
 {
@@ -11,21 +15,22 @@ Our DB looks like:
 }
 */
 
-router.post('/pics/', function(req, res, next) {
-	var userDocs = req.db.collection(req.body.user_id.toString());
-	userDocs.collection('pics').insert({
-  	name: req.body.name,
-  	url: req.body.url
-  }, function(err, result) {
-  	res.send(result.result.ok === 1);
-  });
+router.post('/images/', function(req, res, next) {
+    var image = new Image(req.body);
+    image.save(function(err, image) {
+        if (err) { return next(new Error('Failed to save image.'))}
+        res.status(201).json(image);
+    })
+        
 });
 
-router.get('/pics/', function(req, res, next) {
-	var pics = req.db.collection(req.query.user_id.toString());
-  pics.find().toArray(function(err, docs) {
-  	res.send(docs);
-  });
+router.get('/images/', function(req, res, next) {
+
+    Image.find({}, function(err, images) {
+        if (err) { return next(new Error('Failed to get images.'))}
+        res.status(200).json(images);
+    })
+
 });
 
 module.exports = router;
