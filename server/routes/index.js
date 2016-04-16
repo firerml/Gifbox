@@ -1,28 +1,27 @@
 var express = require('express');
-var mongo = require('mongodb').MongoClient;
 var router = express.Router();
+var mongoose = require('mongoose')
+mongoose.connect('mongodb://localhost:27017/server');
 
-DB_URL = 'mongodb://localhost:27017/server'
+var User = require('../models/userModel');
+var Image = require('../models/imageModel');
 
-router.post('/pics/', function(req, res, next) {
-	mongo.connect(DB_URL, function(err, db) {
-		var pics = db.collection(req.body.user_id.toString());
-		pics.insert({
-    	name: req.body.name,
-    	url: req.body.url
-    }, function(err, result) {
-    	res.send(result.result.ok === 1);
-    });
-	});
+router.post('/images/', function(req, res, next) {
+	console.log(req.body)
+    var image = new Image();
+    image.name = req.body.name;
+    image.url = req.body.url;
+    image.save(function(err, image) {
+        res.status(201).send(image);
+    })
+    	
 });
 
-router.get('/pics/', function(req, res, next) {
-	mongo.connect(DB_URL, function(err, db) {
-		var pics = db.collection(req.query.user_id.toString());
-    pics.find().toArray(function(err, docs) {
-    	res.send(docs);
-    });
-	});
+router.get('/images/', function(req, res, next) {
+
+	Image.find({}, function(err, images) {
+        res.status(200).send(images);
+    })
 });
 
 module.exports = router;
