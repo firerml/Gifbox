@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
-mongoose.connect('mongodb://localhost:27017/gifbook');
+var mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/gifbook'
+mongoose.connect(mongoUri);
 
 var User = require('../models/userModel');
 var Image = require('../models/imageModel');
