@@ -53,24 +53,22 @@ router.get('/images/search/', function(req, res, next) {
   	if (err) { return next(new Error('User auth failure: ' + err)); }
   	var queryWords = searchQuery.split(' ');
   	var imageIds = user.searchIndex[queryWords[0].trim()];
-  	if (imageIds === undefined) { res.json([]); return; }
+  	if (imageIds === undefined) { return res.json([]); }
   	imageIds = imageIds.map(function(imageId) { return imageId.toString() });
   	queryWords.slice(1).forEach(function(word) {
   		var wordResults = user.searchIndex[word.trim()];
   		// Return if there are no results for this word.
-  		if (wordResults === undefined) { res.json([]); return; }
+  		if (wordResults === undefined) { return res.json([]); }
   		wordResults = wordResults.map(function(imageId) { return imageId.toString() });
   		// Remove any items in the final results not found for this word (results must match ALL the words).
   		imageIds.forEach(function(imageId) {
   			if (wordResults.indexOf(imageId) === -1) { imageIds.pop(imageIds.indexOf(imageId)); }
   		});
-  		// Break if the result set is empty.
-  		if (Object.getOwnPropertyNames(imageIds).length === 0) { res.json([]); return; }
   	});
   	// imageIds = imageIds.map(function(imageId) {imageId.toString()})
   	Image.find({_id: {$in: imageIds}}, function(err, images) {
   		if (err) { return next(new Error('Error getting images: ' + err)); }
-  		res.json(images); return;
+  		return res.json(images);
   	});
   });
 });
