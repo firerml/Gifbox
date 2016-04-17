@@ -56,9 +56,10 @@ router.get('/images/search/', function(req, res, next) {
   	if (imageIds === undefined) { res.json([]); return; }
   	imageIds = imageIds.map(function(imageId) { return imageId.toString() });
   	queryWords.slice(1).forEach(function(word) {
-  		var wordResults = user.searchIndex[word.trim()].map(function(imageId) { return imageId.toString() });
+  		var wordResults = user.searchIndex[word.trim()];
   		// Return if there are no results for this word.
-  		if (wordResults.length === 0) { res.json([]); return; }
+  		if (wordResults === undefined) { res.json([]); return; }
+  		wordResults = wordResults.map(function(imageId) { return imageId.toString() });
   		// Remove any items in the final results not found for this word (results must match ALL the words).
   		imageIds.forEach(function(imageId) {
   			if (wordResults.indexOf(imageId) === -1) { imageIds.pop(imageIds.indexOf(imageId)); }
