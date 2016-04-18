@@ -14,9 +14,9 @@ router.post('/images/', function(req, res, next) {
     image.save(function(err, image) {
         if (err) { return next(new Error('Failed to save image: ' + err))}
         
-        User.findOne({chromeId: req.body.chromeId}, function(err, user) {
+        User.findOne({chromeId: req.body.user_id}, function(err, user) {
         	if (user === null) {
-        		user = new User({chromeId: req.body.chromeId});
+        		user = new User({chromeId: req.body.user_id});
         	}
         	user.images.push(image);
         	var imageNameWords = req.body.image.name.trim().toLowerCase().split(' ');
