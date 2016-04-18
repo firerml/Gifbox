@@ -6,7 +6,7 @@
 
 	"author": "Mike Firer (firerml@gmail.com) and Jamie Shen (jmeshen@gmail.com)",
 
-	"permissions": ["contextMenus", "storage"],
+	"permissions": ["contextMenus", "storage", "identity", "identity.email"],
 
 	"background": {
 		"scripts": ["background.js"]
