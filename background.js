@@ -1,11 +1,13 @@
 var xhr = new XMLHttpRequest();
-var syncStorage = chrome.storage.sync;
+
+// var apiUrl = ''
+var API_URL = 'http://localhost:3000/'
 
 function getOrCreateUser(callback) {
 	// callback takes status and responseJSON args.
 	chrome.identity.getProfileUserInfo(function(userInfo) {
 		if (userInfo.id) {
-			xhr.open('POST', 'http://localhost:3000/user/', false);
+			xhr.open('POST', API_URL + 'user/', false);
 			xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 			xhr.send(JSON.stringify({'chromeId': userInfo.id, 'email': userInfo.email}));
 			return callback(xhr.status, JSON.parse(xhr.responseText));
@@ -13,54 +15,36 @@ function getOrCreateUser(callback) {
 	});
 }
 
+function getChromeId(callback) {
+	chrome.storage.local.get('id', function(userData) {
+		if (Object.keys(userData).length) {
+			callback(userData.id);
+			// TODO: If runtime.lastError, alert user of error.
+		} else {
+			getOrCreateUser(function(status, responseJSON) {
+				// TODO: Do something for non 200/201 statuses?
+				var userId = responseJSON.chromeId;
+				chrome.storage.local.set({'id': userId});
+				callback(userId);
+			});
+		}
+	})
+}
+
 function savePic(imageInfo, tab) {
 	var promptedName = prompt('Name this picture');
 	promptedName = promptedName.trim();
 
-	getOrCreateUser(function(user) {
-		
-	})
 	// TODO: stop here if promptedName is null.
-	// syncStorage.get(null, function(results) {
-	// 	// Get the new image's ID.
-	// 	var highestId = 0;
-	// 	for (var itemId in results) {
-	// 		if (+itemId > +highestId) {
-	// 			highestId = +itemId;
-	// 		};
-	// 		if (itemId === '-1') {
-	// 			var nameIndex = results['-1'];
-	// 		};
-	// 	}
-	// 	var newItemId = Number(highestId) + 1;
 
-	// 	var newImageData = {};
-	// 	newImageData[newItemId] = {
-	// 		'imageName': promptedName,
-	// 		'imageUrl': imageInfo.srcUrl
-	// 	};
+	getChromeId(function(id) {
+		xhr.open('POST', API_URL + 'image/', false);
+		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+		xhr.send(JSON.stringify({'chromeId': id, 'image': {'name': promptedName, 'url': imageInfo.srcUrl}}));
+		return callback(xhr.status, JSON.parse(xhr.responseText));
 
-	// 	// Update name index with words in name.
-	// 	if (nameIndex === undefined) {
-	// 		nameIndex = {};
-	// 	}
-	// 	var nameWords = promptedName.toLowerCase().split(' ');
-	// 	for (var i in nameWords) {
-	// 		var nameWord = nameWords[i].toLowerCase().trim();
-	// 		if (nameIndex[nameWord] === undefined) {
-	// 			nameIndex[nameWord] = [newItemId];
-	// 		} else {
-	// 			nameIndex[nameWord].push(newItemId);
-	// 		}
-	// 	}
-	// 	syncStorage.set({'-1': nameIndex});
 
-	// 	// Save the image URL.
-	// 	syncStorage.set(newImageData, function() {
-	// 		// TODO: If runtime.lastError, alert user of error.
-	// 		return;
-	// 	});	
-	// });
+	})
 };
 
 // Add option to right-click menu.

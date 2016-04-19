@@ -29,7 +29,7 @@ router.post('/user/', function(req, res, next) {
   });
 });
 
-router.post('/images/', function(req, res, next) {
+router.post('/image/', function(req, res, next) {
     // To do: Make both saves atomic.
     var image = new Image(req.body.image);
     image.save(function(err, image) {
@@ -62,7 +62,7 @@ router.post('/images/', function(req, res, next) {
         
 });
 
-router.get('/images/', function(req, res, next) {
+router.get('/image/', function(req, res, next) {
   User.findOne({chromeId: req.query.chromeId}, function(err, user) {
     if (err) { return next(new Error('User auth failure: ' + err)); }
     Image.find({_id: {$in: user.images}}, function(err, images) {
@@ -72,7 +72,7 @@ router.get('/images/', function(req, res, next) {
   });
 });
 
-router.get('/images/search/', function(req, res, next) {
+router.get('/image/search/', function(req, res, next) {
   var searchQuery = req.query.q.toLowerCase();
   User.findOne({chromeId: req.query.chromeId}, function(err, user) {
   	if (err) { return next(new Error('User auth failure: ' + err)); }
