@@ -8,17 +8,38 @@ mongoose.connect(mongoUri);
 var User = require('../models/userModel');
 var Image = require('../models/imageModel');
 
+router.post('/user/', function(req, res, next) {
+  // Get or create User in DB.
+  User.findOne({chromeId: req.body.chromeId}, function(err, user) {
+    if (err) { return next(new Error('Error: ' + err)); }
+    // User exists.
+    if (user != null) { res.status(200).json(user); }
+    // Create user.
+    user = new User({
+      chromeId: req.body.chromeId,
+      email: req.body.email,
+      images: [],
+      searchIndex: {}
+    })
+    user.markModified('searchIndex');
+    user.save(function(err, user) {
+      if (err) { return next(new Error('Failed to save image: ' + err)); }
+      res.status(201).json(user);
+    });
+  });
+});
+
 router.post('/images/', function(req, res, next) {
     // To do: Make both saves atomic.
     var image = new Image(req.body.image);
     image.save(function(err, image) {
         if (err) { return next(new Error('Failed to save image: ' + err))}
         
-        User.findOne({chromeId: req.body.user_id}, function(err, user) {
-        	if (user === null) {
-        		user = new User({chromeId: req.body.user_id});
-        	}
-        	user.images.push(image);
+        User.findOne({chromeId: req.body.chromeId}, function(err, user) {
+
+        	if (user === null) { return next(new Error('User does not exist')); }
+        	
+          user.images.push(image);
         	var imageNameWords = req.body.image.name.trim().toLowerCase().split(' ');
         	imageNameWords.forEach(function(word) {
         		for (var i = 1; i < word.length + 1; i++) {
@@ -42,15 +63,18 @@ router.post('/images/', function(req, res, next) {
 });
 
 router.get('/images/', function(req, res, next) {
-    Image.find({}, function(err, images) {
+  User.findOne({chromeId: req.query.chromeId}, function(err, user) {
+    if (err) { return next(new Error('User auth failure: ' + err)); }
+    Image.find({_id: {$in: user.images}}, function(err, images) {
         if (err) { return next(new Error('Failed to get images: ' + err))}
         res.status(200).json(images);
     });
+  });
 });
 
 router.get('/images/search/', function(req, res, next) {
   var searchQuery = req.query.q.toLowerCase();
-  User.findOne({chromeId: req.query.user_id}, function(err, user) {
+  User.findOne({chromeId: req.query.chromeId}, function(err, user) {
   	if (err) { return next(new Error('User auth failure: ' + err)); }
   	var queryWords = searchQuery.split(' ');
   	var imageIds = user.searchIndex[queryWords[0].trim()];
