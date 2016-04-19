@@ -13,7 +13,10 @@ router.post('/user/', function(req, res, next) {
   User.findOne({chromeId: req.body.chromeId}, function(err, user) {
     if (err) { return next(new Error('Error: ' + err)); }
     // User exists.
-    if (user != null) { res.status(200).json(user); }
+    if (user != null) { 
+      res.status(200).json(user); 
+      return;
+    }
     // Create user.
     user = new User({
       chromeId: req.body.chromeId,
@@ -30,35 +33,34 @@ router.post('/user/', function(req, res, next) {
 });
 
 router.post('/image/', function(req, res, next) {
-    // To do: Make both saves atomic.
-    var image = new Image(req.body.image);
-    image.save(function(err, image) {
-        if (err) { return next(new Error('Failed to save image: ' + err))}
-        
-        User.findOne({chromeId: req.body.chromeId}, function(err, user) {
-
-        	if (user === null) { return next(new Error('User does not exist')); }
-        	
-          user.images.push(image);
-        	var imageNameWords = req.body.image.name.trim().toLowerCase().split(' ');
-        	imageNameWords.forEach(function(word) {
-        		for (var i = 1; i < word.length + 1; i++) {
-        			var wordPortion = word.slice(0, i);
-        			var searchTermResults = user.searchIndex[wordPortion];
-        			if (searchTermResults === undefined) {
-        				user.searchIndex[wordPortion] = [image._id]
-        			} else {
-        				user.searchIndex[wordPortion].push(image._id)
-        			}
-        		}
-        	});
-        	user.markModified('searchIndex');
-        	user.save(function(err, user) {
-        		if (err) { return next(new Error('Failed to save image: ' + err))}
-        	});
-        })
-        res.status(201).json(image);
-    });
+  // To do: Make both saves atomic.
+  var image = new Image(req.body.image);
+  image.save(function(err, image) {
+    if (err) { return next(new Error('Failed to save image: ' + err))}
+    
+    User.findOne({chromeId: req.body.chromeId}, function(err, user) {
+    	if (user === null) { return next(new Error('User does not exist')); }
+    	
+      user.images.push(image);
+    	var imageNameWords = req.body.image.name.trim().toLowerCase().split(' ');
+    	imageNameWords.forEach(function(word) {
+    		for (var i = 1; i < word.length + 1; i++) {
+    			var wordPortion = word.slice(0, i);
+    			var searchTermResults = user.searchIndex[wordPortion];
+    			if (searchTermResults === undefined) {
+    				user.searchIndex[wordPortion] = [image._id]
+    			} else {
+    				user.searchIndex[wordPortion].push(image._id)
+    			}
+    		}
+    	});
+    	user.markModified('searchIndex');
+    	user.save(function(err, user) {
+    		if (err) { return next(new Error('Failed to save image: ' + err))}
+    	});
+    })
+    res.status(201).json(image);
+  });
         
 });
 

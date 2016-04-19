@@ -41,8 +41,6 @@ function savePic(imageInfo, tab) {
 		xhr.open('POST', API_URL + 'image/', false);
 		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 		xhr.send(JSON.stringify({'chromeId': id, 'image': {'name': promptedName, 'url': imageInfo.srcUrl}}));
-		return callback(xhr.status, JSON.parse(xhr.responseText));
-
 
 	})
 };
