@@ -1,13 +1,13 @@
 var xhr = new XMLHttpRequest();
 
 // var apiUrl = ''
-var API_URL = 'http://localhost:3000/'
+var API_URL = 'http://localhost:3000'
 
 function getOrCreateUser(callback) {
 	// callback takes status and responseJSON args.
 	chrome.identity.getProfileUserInfo(function(userInfo) {
 		if (userInfo.id) {
-			xhr.open('POST', API_URL + 'user/', false);
+			xhr.open('POST', API_URL + '/user/', false);
 			xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 			xhr.send(JSON.stringify({'chromeId': userInfo.id, 'email': userInfo.email}));
 			return callback(xhr.status, JSON.parse(xhr.responseText));
@@ -31,6 +31,26 @@ function getChromeId(callback) {
 	})
 }
 
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+  	// if (request.messageType === 'getChromeId') {
+  	// 	getChromeId(function(userId) {
+  	// 		sendResponse(userId);
+  	// 	});
+  	// 	return true;
+  	// };
+  	if (request.messageType === 'search') {
+  		getChromeId(function(userId) {
+  			// Send search request to server.
+  			xhr.open('GET', API_URL + '/image/search/?chromeId=' + userId + '&q=' + request.searchQuery, false);
+				xhr.send();
+				sendResponse(JSON.parse(xhr.responseText));
+  		});
+  		return true;
+  	}
+  }
+);
+
 function savePic(imageInfo, tab) {
 	var promptedName = prompt('Name this picture');
 	promptedName = promptedName.trim();
@@ -38,7 +58,7 @@ function savePic(imageInfo, tab) {
 	// TODO: stop here if promptedName is null.
 
 	getChromeId(function(id) {
-		xhr.open('POST', API_URL + 'image/', false);
+		xhr.open('POST', API_URL + '/image/', false);
 		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 		xhr.send(JSON.stringify({'chromeId': id, 'image': {'name': promptedName, 'url': imageInfo.srcUrl}}));
 

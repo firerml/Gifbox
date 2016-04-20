@@ -28,6 +28,7 @@ router.post('/user/', function(req, res, next) {
     user.save(function(err, user) {
       if (err) { return next(new Error('Failed to save image: ' + err)); }
       res.status(201).json(user);
+      return;
     });
   });
 });
@@ -60,6 +61,7 @@ router.post('/image/', function(req, res, next) {
     	});
     })
     res.status(201).json(image);
+    return;
   });
         
 });
@@ -70,6 +72,7 @@ router.get('/image/', function(req, res, next) {
     Image.find({_id: {$in: user.images}}, function(err, images) {
         if (err) { return next(new Error('Failed to get images: ' + err))}
         res.status(200).json(images);
+        return;
     });
   });
 });
@@ -80,12 +83,25 @@ router.get('/image/search/', function(req, res, next) {
   	if (err) { return next(new Error('User auth failure: ' + err)); }
   	var queryWords = searchQuery.split(' ');
   	var imageIds = user.searchIndex[queryWords[0].trim()];
-  	if (imageIds === undefined) { return res.json([]); }
+  	
+    // No results for first word.
+    if (imageIds === undefined) { 
+      res.json([]);
+      return;
+    }
+
   	imageIds = imageIds.map(function(imageId) { return imageId.toString() });
+    // Check results for all words after first.
   	queryWords.slice(1).forEach(function(word) {
   		var wordResults = user.searchIndex[word.trim()];
-  		// Return if there are no results for this word.
-  		if (wordResults === undefined) { return res.json([]); }
+  		
+      // Return if there are no results for this word.
+  		if (wordResults === undefined) {
+        res.json([]);
+        // TODO: sThis needs to end the outer function, not this inner one.
+        return;
+      }
+
   		wordResults = wordResults.map(function(imageId) { return imageId.toString() });
   		// Remove any items in the final results not found for this word (results must match ALL the words).
   		imageIds.forEach(function(imageId) {
@@ -95,7 +111,8 @@ router.get('/image/search/', function(req, res, next) {
   	// imageIds = imageIds.map(function(imageId) {imageId.toString()})
   	Image.find({_id: {$in: imageIds}}, function(err, images) {
   		if (err) { return next(new Error('Error getting images: ' + err)); }
-  		return res.json(images);
+  		res.json(images);
+      return;
   	});
   });
 });
