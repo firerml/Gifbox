@@ -51,9 +51,9 @@ router.post('/image/', function(req, res, next) {
     			var wordPortion = word.slice(0, i);
     			var searchTermResults = user.searchIndex[wordPortion];
     			if (searchTermResults === undefined) {
-    				user.searchIndex[wordPortion] = [image._id]
+    				user.searchIndex[wordPortion] = [image.id]
     			} else {
-    				user.searchIndex[wordPortion].push(image._id)
+    				user.searchIndex[wordPortion].push(image.id)
     			}
     		}
     	});
@@ -76,6 +76,46 @@ router.get('/image/', function(req, res, next) {
         if (err) { return next(new Error('Failed to get images: ' + err))}
         res.status(200).json(images);
         return;
+    });
+  });
+});
+
+// Delete image.
+router.delete('/image/', function(req, res, next) {
+  User.findOne({chromeId: req.query.chromeId}, function(err, user) {
+    if (err) { return next(new Error('User auth failure: ' + err)); }
+    Image.findOne({_id: req.query.imageId}, function(err, image) {
+        if (err) {
+          res.status(404).json({success: false, error: err});
+          return;
+        } else {
+          var imageName = image.name;
+          image.remove(function(err) {
+            if (err) { res.status(500).json({success: false, error: err}); return; };
+
+            // Remove this image from index.
+            var imageNameWords = image.name.trim().toLowerCase().split(' ');
+            imageNameWords.forEach(function(word) {
+              for (var i = 1; i < word.length + 1; i++) {
+                var wordPortion = word.slice(0, i);
+                var imageIds = user.searchIndex[wordPortion];
+                if (imageIds === undefined) { continue; }
+                var imageIdIndex = imageIds.indexOf(image.id);
+                if (imageIdIndex == -1) { continue; }
+                imageIds.splice(imageIdIndex, 1);
+                if (imageIds.length == 0) {
+                  delete user.searchIndex[wordPortion];
+                }
+              }
+            });
+            user.markModified('searchIndex');
+            user.save(function(err, user) {
+              if (err) { return next(new Error('Failed to save image: ' + err))}
+            });
+          });
+          res.status(200).send({success: true});
+          return;
+        }
     });
   });
 });

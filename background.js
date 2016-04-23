@@ -32,35 +32,35 @@ function getChromeId(callback) {
 }
 
 // Search
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	if (request.messageType === 'search') {
-  		getChromeId(function(userId) {
-  			// Send search request to server.
-  			xhr.open('GET', API_URL + '/image/search/?chromeId=' + userId + '&q=' + request.searchQuery, false);
-				xhr.send();
-				sendResponse(JSON.parse(xhr.responseText));
-  		});
-  		return true;
-  	}
-  }
-);
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	switch (request.messageType) {
+		case 'search':
+  		var method = 'GET';
+  		var url = API_URL + '/image/search/?q=' + request.searchQuery;
+  		break;
+  	case 'getMyImages':
+  		var method = 'GET';
+  		var url = API_URL + '/image/?';
+  		break;
+		case 'deleteImage':
+			var method = 'DELETE';
+  		var url = API_URL + '/image/?imageId=' + request.imageId;
+  		break;
+		default:
+			return true;
+	}
+	getChromeId(function(chromeId) {
+		url += '&chromeId=' + chromeId;
+		// Send request to server.
+		xhr.open(method, url, false);
+		xhr.send();
+		sendResponse(JSON.parse(xhr.responseText));
+	});
+	return true;
+});
 
-// Get all of one user's images.
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	if (request.messageType === 'getMyImages') {
-  		getChromeId(function(userId) {
-  			xhr.open('GET', API_URL + '/image/?chromeId=' + userId, false);
-				xhr.send();
-				sendResponse(JSON.parse(xhr.responseText));
-  		});
-  		return true;
-  	}
-  }
-);
-
-function savePic(imageInfo, tab) {
+// Save image.
+function saveImage(imageInfo, tab) {
 	var promptedName = prompt('Name this picture');
 	promptedName = promptedName.trim();
 
@@ -78,5 +78,5 @@ function savePic(imageInfo, tab) {
 chrome.contextMenus.create({
 	title: 'Save Sweet Pic, Bro!',
 	contexts: ['image'],
-	onclick: savePic
+	onclick: saveImage
 });

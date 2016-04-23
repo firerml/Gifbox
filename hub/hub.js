@@ -24,8 +24,16 @@ $(document).ready(function() {
 	// Delete picture.
 	$('#image-container').on('click', '.img-box__bar__delete', function(event) {
 		var button = $(event.currentTarget);
-		var url = button.closest('.img-box').find('.img-box__image')[0].src;
-		// TODO: Delete that picture, son!
+		var imageBox = button.closest('.img-box');
+		var imageId = imageBox.attr('id');
+		
+		chrome.runtime.sendMessage({messageType: 'deleteImage', imageId: imageId}, function(responseData) {
+			if (responseData.success) {
+				imageBox.animate({opacity: 0}, 300, function() {
+					imageBox.remove();
+				});
+			}
+		});
 	});
 })
 
@@ -33,7 +41,7 @@ $(document).ready(function() {
 chrome.runtime.sendMessage({messageType: 'getMyImages'}, function(images) {
 	images.forEach(function(image) {
 		$('#image-container')
-		.append($('<div>', {class: 'img-box'})
+		.append($('<div>', {class: 'img-box', id: image._id})
 			.append($('<div>', {class: 'img-box__bottom-bar img-box__bar'})
 				.append($('<div>', {class: 'img-box__bar__col img-box__bar__delete', text: 'Delete'}))
 				.append($('<div>', {class: 'img-box__bar__col img-box__bar__copy', text: 'Copy Link'}))
