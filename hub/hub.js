@@ -1,7 +1,5 @@
 // The hub of the app, accessible via the button next to the url bar.
 
-var syncStorage = chrome.storage.sync;
-
 function copyText(text) {
 	// Create a hidden p tag offscreen containing the text so it can be selected and copied.
 	hiddenTag = $('<p>' + text + '</p>').css({'position': 'absolute', 'left': '-2000px'});
@@ -17,20 +15,30 @@ function copyText(text) {
 
 $(document).ready(function() {
 	// Copy images when they're clicked on.
-	$('#image-container').on('click', '.img-box', function(event) {
-		copyText($(event.currentTarget).find('.img-box__image').attr('src'))
+	$('#image-container').on('click', '.img-box__bar__copy', function(event) {
+		var button = $(event.currentTarget);
+		var url = button.closest('.img-box').find('.img-box__image')[0].src;
+		copyText(url);
+	});
+
+	// Delete picture.
+	$('#image-container').on('click', '.img-box__bar__delete', function(event) {
+		var button = $(event.currentTarget);
+		var url = button.closest('.img-box').find('.img-box__image')[0].src;
+		// TODO: Delete that picture, son!
 	});
 })
 
 // Display each image.
-syncStorage.get(null, function(results) {
-	for (var itemId in results) {
-		var data = results[itemId];
+chrome.runtime.sendMessage({messageType: 'getMyImages'}, function(images) {
+	images.forEach(function(image) {
 		$('#image-container')
-		.append($('<div>', {'class': 'img-box'})
-			.append($('<div>', {'class': 'img-box__overlay'})
-				.append($('<h3>', {text: 'Copy Link'})))
-			.append($('<img>', {'class': 'img-box__image', 'src': data.imageUrl}))
+		.append($('<div>', {class: 'img-box'})
+			.append($('<div>', {class: 'img-box__bottom-bar img-box__bar'})
+				.append($('<div>', {class: 'img-box__bar__col img-box__bar__delete', text: 'Delete'}))
+				.append($('<div>', {class: 'img-box__bar__col img-box__bar__copy', text: 'Copy Link'}))
+			)
+			.append($('<img>', {class: 'img-box__image', src: image.url}))
 		);
-	}
+	});
 });

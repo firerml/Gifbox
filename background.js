@@ -31,18 +31,27 @@ function getChromeId(callback) {
 	})
 }
 
+// Search
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-  	// if (request.messageType === 'getChromeId') {
-  	// 	getChromeId(function(userId) {
-  	// 		sendResponse(userId);
-  	// 	});
-  	// 	return true;
-  	// };
   	if (request.messageType === 'search') {
   		getChromeId(function(userId) {
   			// Send search request to server.
   			xhr.open('GET', API_URL + '/image/search/?chromeId=' + userId + '&q=' + request.searchQuery, false);
+				xhr.send();
+				sendResponse(JSON.parse(xhr.responseText));
+  		});
+  		return true;
+  	}
+  }
+);
+
+// Get all of one user's images.
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+  	if (request.messageType === 'getMyImages') {
+  		getChromeId(function(userId) {
+  			xhr.open('GET', API_URL + '/image/?chromeId=' + userId, false);
 				xhr.send();
 				sendResponse(JSON.parse(xhr.responseText));
   		});

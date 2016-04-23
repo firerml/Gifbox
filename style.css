@@ -32,7 +32,30 @@
 .img-box:hover {
   cursor: pointer;
 }
-.img-box:hover .img-box__overlay {
+.img-box:hover .img-box__bar {
+  opacity: 1;
+}
+.img-box__bar {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+}
+.img-box__bar__col {
+  background-color: gray;
+  color: #E0E0E0;
+  float: left;
+  width: 50%;
+  text-align: center;
+  outline: #E0E0E0 solid 1px;
+  outline-offset: -1px;
+}
+.img-box__bar__col:hover {
+  background-color: maroon;
+}
+.img-box__bar__col:active { 
+    background: green;
+}
+/*.img-box:hover .img-box__overlay {
   opacity: 1;
 }
 .img-box__overlay {
@@ -50,7 +73,7 @@
 .img-box__overlay h3 {
   position: relative;
   bottom: -25%;
-}
+}*/
 .img-box__image {
   cursor: pointer;
   width: 100%;
