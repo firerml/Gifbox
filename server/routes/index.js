@@ -1,7 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var router = require('express').Router();
 var mongoose = require('mongoose');
-var ObjectId = mongoose.Types.ObjectId;
 var mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/gifbook'
 mongoose.connect(mongoUri);
 
@@ -70,13 +68,34 @@ router.post('/image/', function(req, res, next) {
 
 // Get a user's images.
 router.get('/image/', function(req, res, next) {
+  function getImages(user) {
+    Image.find({_id: {$in: user.images}}, function(err, images) {
+      if (err) { return next(new Error('Failed to get images: ' + err))}
+      res.status(200).json(images);
+    });
+  }
+
   User.findOne({chromeId: req.query.chromeId}, function(err, user) {
     if (err) { return next(new Error('User auth failure: ' + err)); }
-    Image.find({_id: {$in: user.images}}, function(err, images) {
-        if (err) { return next(new Error('Failed to get images: ' + err))}
-        res.status(200).json(images);
+    
+    // For whatever reason, this user doesn't exist, so create it.
+    if (user === undefined) {
+      user = new User({
+        chromeId: req.body.chromeId,
+        email: req.body.email,
+        images: [],
+        searchIndex: {}
+      })
+      user.markModified('searchIndex');
+      user.save(function(err, user) {
+        if (err) { return next(new Error('Failed to save image: ' + err)); }
+        getImages(user);
         return;
-    });
+      });
+    } else {
+      getImages(user);
+      return;
+    }
   });
 });
 
@@ -110,7 +129,11 @@ router.delete('/image/', function(req, res, next) {
             });
             user.markModified('searchIndex');
             user.save(function(err, user) {
-              if (err) { return next(new Error('Failed to save image: ' + err))}
+              if (err) { return next(new Error('Error: ' + err))}
+              // Remove this image from user's images.
+              User.update({chromeId: user.chromeId}, {$pull: {images: image._id}}, function(err, info) {
+                if (err) { return next(new Error('Error: ' + err))}
+              })
             });
           });
           res.status(200).send({success: true});
