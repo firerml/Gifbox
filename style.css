@@ -24,6 +24,10 @@
   height: 200px;
 }
 
+#gifbook-input-container {
+  position: relative;
+}
+
 .img-box {
   position: relative;
   display: inline-block;

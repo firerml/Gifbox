@@ -5,18 +5,22 @@ function removeContainer() {
 	if (container.length) { container.remove(); }	
 };
 
-function imageSearch(query, callback) {
+function imageSearch(inputElement, query, callback) {
 	chrome.runtime.sendMessage({messageType: 'search', searchQuery: query}, function(responseData) {
-		callback(responseData);
+		callback(inputElement, responseData);
 	});
 };
 
-function displayResults(results) {
-	container = $('body').find('#image-container-search');
-	containerExists = true;
+function displayResults(inputElement, results) {
+	var container = $('body').find('#image-container-search');
+	var inputHeight = inputElement.height();
+	var inputOffset = inputElement.offset();
+	var imageContainerTop = inputOffset.top + inputHeight;
+	var imageContainerLeft = inputOffset.left;
+	var containerExists = true;
 	if (!container.length) {
 		containerExists = false;
-		container = $('<div>', {'id': 'image-container-search'});
+		container = $('<div>', {'id': 'image-container-search'}).css({'top': imageContainerTop+'px', 'left': imageContainerLeft+'px'});
 	} 
 	else {
 		container.empty();
@@ -43,7 +47,8 @@ $('body').on('input', 'input', function(event) {
 	var match = triggerPattern.exec(text);
 	if (match && match.length) {
 		var matchText = match[1].trim();
-		imageSearch(matchText, displayResults);
+				
+		imageSearch($(this), matchText, displayResults);
 	} else {
 		removeContainer();
 	}
