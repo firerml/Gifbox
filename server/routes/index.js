@@ -112,7 +112,7 @@ router.delete('/image/', function(req, res, next) {
           image.remove(function(err) {
             if (err) { res.status(500).json({success: false, error: err}); return; };
 
-            // Remove this image from index.
+            // Remove this image from search index.
             var imageNameWords = image.name.trim().toLowerCase().split(' ');
             imageNameWords.forEach(function(word) {
               for (var i = 1; i < word.length + 1; i++) {
@@ -164,8 +164,7 @@ router.get('/image/search/', function(req, res, next) {
   		
       // Return if there are no results for this word.
   		if (wordResults === undefined) {
-        res.json([]);
-        // TODO: sThis needs to end the outer function, not this inner one.
+        imageIds = [];
         return;
       }
 
@@ -175,6 +174,11 @@ router.get('/image/search/', function(req, res, next) {
   			if (wordResults.indexOf(imageId) === -1) { imageIds.pop(imageIds.indexOf(imageId)); }
   		});
   	});
+
+    if (!imageIds.length) {
+      res.json([]);
+      return;
+    }
   	// imageIds = imageIds.map(function(imageId) {imageId.toString()})
   	Image.find({_id: {$in: imageIds}}, function(err, images) {
   		if (err) { return next(new Error('Error getting images: ' + err)); }
