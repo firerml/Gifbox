@@ -1,5 +1,10 @@
 var triggerPattern = /(?:gb|gifbook)(.+)$|\n/i
 
+function removeContainer() {
+	container = $('body').find('#image-container-search');
+	if (container.length) { container.remove(); }	
+};
+
 function imageSearch(query, callback) {
 	chrome.runtime.sendMessage({messageType: 'search', searchQuery: query}, function(responseData) {
 		callback(responseData);
@@ -29,7 +34,7 @@ function displayResults(results) {
 
 var lastSearch = '';
 
-$('body').on('keyup', 'input', function(event) {
+$('body').on('input', 'input', function(event) {
 	var text = $(this).val();
 	if (text == lastSearch) {
 		return;
@@ -39,5 +44,12 @@ $('body').on('keyup', 'input', function(event) {
 	if (match && match.length) {
 		var matchText = match[1].trim();
 		imageSearch(matchText, displayResults);
+	} else {
+		removeContainer();
 	}
+
+});
+
+$('body').on('keyup', 'input', function(event) {
+	if (!$(this).val()) { removeContainer(); }
 });

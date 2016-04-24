@@ -15,7 +15,7 @@
 #image-container-search {
   border: 3px solid #F5F5DC;
   border-radius: 8px;
-  background-image: url('chrome-extension://fibilfjapkolccfjhongbkjpjelodcpa/images/bg.png');
+  background-image: url('chrome-extension://__MSG_@@extension_id__/images/bg.png');
   width: 500px;
   position: absolute;
   top: 0;
