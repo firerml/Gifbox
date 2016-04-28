@@ -1,4 +1,4 @@
-var triggerPattern = /(?:gb|gifbook)(.+)$|\n/i
+var triggerPattern = /\/(?:gb|gifbook)(.+)$|\n/i
 
 function removeContainer() {
 	container = $('body').find('#image-container-search');
@@ -17,6 +17,7 @@ function displayResults(inputElement, results) {
 	var inputOffset = inputElement.offset();
 	var imageContainerTop = inputOffset.top + inputHeight;
 	var imageContainerLeft = inputOffset.left;
+	var existingOOCUrl = $('.img-box__out-of-content').attr('src');
 	var containerExists = true;
 	if (!container.length) {
 		containerExists = false;
@@ -26,10 +27,22 @@ function displayResults(inputElement, results) {
 		container.empty();
 	}
 
-	results.forEach(function(result) {
+	if (results.length) {
+		results.forEach(function(result) {
 		container.append($('<div>', {'class': 'img-box'})
 			.append($('<img>', {'class': 'img-box__image', 'src': result.url})));
-	});
+		});
+	} else {
+		if (existingOOCUrl) {
+			var oocUrl = existingOOCUrl;
+		} else {
+			var oocUrl = chrome.extension.getURL('/images/ooc' + Math.floor(Math.random()*2) + '.jpg');
+		}
+		container.append($('<div>', {'class': 'img-box'})
+			.append($('<img>', {'class': 'img-box__image img-box__out-of-content', 'src': oocUrl}))
+			.append($('<p>', {'class': 'img-box__out-of-content-p'}).text('No results, braw!'))
+		);
+	}
 
 	if (!containerExists) {
 		$('body').prepend(container);
@@ -43,18 +56,30 @@ $('body').on('input', 'input', function(event) {
 	if (text == lastSearch) {
 		return;
 	}
-	var cursorPosition = this.selectionStart;
 	var match = triggerPattern.exec(text);
 	if (match && match.length) {
 		var matchText = match[1].trim();
-				
-		imageSearch($(this), matchText, displayResults);
+		if (matchText) {
+			imageSearch($(this), matchText, displayResults);
+		}
 	} else {
 		removeContainer();
 	}
-
 });
 
 $('body').on('keyup', 'input', function(event) {
 	if (!$(this).val()) { removeContainer(); }
+});
+
+$('body').on('click', '.img-box__image', function(event) {
+	var imgUrl = event.target.src;
+	var inputBoxes = $('input');
+	for (var i = 0; i < inputBoxes.length; i++) {
+		var inputValue = inputBoxes[i].value;
+		var match = triggerPattern.exec(inputValue);
+		if (match && match.length) {
+			inputBoxes[i].value = inputValue.replace(match[0], imgUrl);
+			$('#image-container-search').remove();
+		}
+	}
 });
